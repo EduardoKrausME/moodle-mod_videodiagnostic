@@ -1,0 +1,40 @@
+.videodiagnostic-video,
+.videodiagnostic-embed {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    background: #000;
+}
+
+.videodiagnostic-player .progress {
+    height: .65rem;
+}
+
+.videodiagnostic-question-card {
+    border-left: .25rem solid var(--bs-border-color, #dee2e6);
+}
+
+.videodiagnostic-change {
+    font-weight: 600;
+}
+
+.videodiagnostic-timecode {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.videodiagnostic-timeline {
+    position: relative;
+    height: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .5rem;
+    background: var(--bs-tertiary-bg, #f1f3f5);
+}
+
+.videodiagnostic-timeline-segment {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: var(--bs-success, #198754);
+}
