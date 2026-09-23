@@ -83,6 +83,7 @@ $string['modulenameplural'] = 'Video Diagnostics';
 $string['movedown'] = 'Mover para baixo';
 $string['moveup'] = 'Mover para cima';
 $string['no'] = 'Não';
+$string['noactivities'] = 'Não há atividades Video Diagnostic neste curso.';
 $string['noquestions'] = 'Nenhuma pergunta diagnóstica foi criada ainda.';
 $string['nostudents'] = 'Nenhum estudante matriculado foi encontrado.';
 $string['notstarted'] = 'Não iniciado';

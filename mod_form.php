@@ -54,7 +54,7 @@ class mod_videodiagnostic_mod_form extends moodleform_mod {
             'video_filemanager',
             get_string('videofile', 'mod_videodiagnostic'),
             null,
-            ['subdirs' => false, 'maxfiles' => 1, 'accepted_types' => ['video', '.m3u8']]
+            ['subdirs' => false, 'accepted_types' => ['video', '.m3u8']]
         );
         $mform->hideIf('video_filemanager', 'videosource', 'neq', 'upload');
         $mform->addElement('text', 'videourl', get_string('videourl', 'mod_videodiagnostic'), ['size' => 80]);
@@ -62,7 +62,7 @@ class mod_videodiagnostic_mod_form extends moodleform_mod {
         $mform->addHelpButton('videourl', 'videourl', 'mod_videodiagnostic');
         $mform->hideIf('videourl', 'videosource', 'eq', 'upload');
 
-        $mform->addElement('header', 'diagnosticsettings', get_string('diagnosticsettings', 'mod_videodiagnostic'));
+        $mform->addElement('html', '<h3>' . get_string('diagnosticsettings', 'mod_videodiagnostic') . '</h3>');
         $mform->addElement('advcheckbox', 'releaseafterinitial', get_string('releaseafterinitial', 'mod_videodiagnostic'));
         $mform->addHelpButton('releaseafterinitial', 'releaseafterinitial', 'mod_videodiagnostic');
         $mform->setDefault('releaseafterinitial', 1);
@@ -73,7 +73,7 @@ class mod_videodiagnostic_mod_form extends moodleform_mod {
         $mform->addHelpButton('allowpostattempt', 'allowpostattempt', 'mod_videodiagnostic');
         $mform->setDefault('allowpostattempt', 1);
 
-        $mform->addElement('header', 'studysettings', get_string('studysettings', 'mod_videodiagnostic'));
+        $mform->addElement('html', '<h3>' . get_string('studysettings', 'mod_videodiagnostic') . '</h3>');
         $mform->addElement(
             'select',
             'explanationsource',
@@ -86,7 +86,7 @@ class mod_videodiagnostic_mod_form extends moodleform_mod {
             'explanationvideo_filemanager',
             get_string('explanationvideofile', 'mod_videodiagnostic'),
             null,
-            ['subdirs' => false, 'maxfiles' => 1, 'accepted_types' => ['video', '.m3u8']]
+            ['subdirs' => false, 'accepted_types' => ['video', '.m3u8']]
         );
         $mform->hideIf('explanationvideo_filemanager', 'explanationsource', 'neq', 'upload');
         $mform->addElement('text', 'explanationvideourl', get_string('explanationvideourl', 'mod_videodiagnostic'), ['size' => 80]);
@@ -203,7 +203,16 @@ class mod_videodiagnostic_mod_form extends moodleform_mod {
         }
         $percent = (float)($data['completionpercent'] ?? 0);
         if ($percent < 0 || $percent > 100) {
-            $errors['completionpercent'] = get_string('invaliddata');
+            $errors['completionpercent'] = get_string('invaliddata', 'error');
+        }
+        foreach (['video_filemanager', 'explanationvideo_filemanager'] as $field) {
+            $draftid = (int)($data[$field] ?? 0);
+            if ($draftid > 0) {
+                $draftinfo = file_get_draft_area_info($draftid);
+                if ((int)$draftinfo['filecount'] > 1) {
+                    $errors[$field] = get_string('errormaxfiles', 'videodiagnostic');
+                }
+            }
         }
         return $errors;
     }

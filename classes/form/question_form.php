@@ -107,7 +107,7 @@ class question_form extends moodleform {
         }
         if (($data['qtype'] ?? '') === 'interval' && (float)($data['expectedend'] ?? 0) > 0
             && (float)($data['expectedend'] ?? 0) <= (float)($data['expectedstart'] ?? 0)) {
-            $errors['expectedend'] = get_string('invaliddata');
+            $errors['expectedend'] = get_string('invaliddata', 'error');
         }
         return $errors;
     }

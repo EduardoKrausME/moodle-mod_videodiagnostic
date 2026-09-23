@@ -38,7 +38,7 @@ $instances = get_all_instances_in_course('videodiagnostic', $course);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('modulenameplural', 'mod_videodiagnostic'));
 if (!$instances) {
-    echo $OUTPUT->notification(get_string('noactivities', 'moodle'), 'info');
+    echo $OUTPUT->notification(get_string('noactivities', 'videodiagnostic'), 'info');
     echo $OUTPUT->footer();
     exit;
 }
