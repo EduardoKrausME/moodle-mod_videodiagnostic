@@ -208,11 +208,11 @@ function videodiagnostic_delete_instance(int $id): bool {
 function videodiagnostic_pluginfile(
     stdClass $course,
     stdClass $cm,
-    context  $context,
-    string   $filearea,
-    array    $args,
-    bool     $forcedownload,
-    array    $options = []
+    context $context,
+    string $filearea,
+    array $args,
+    bool $forcedownload,
+    array $options = []
 ): bool {
     if ($context->contextlevel !== CONTEXT_MODULE || $cm->modname !== 'videodiagnostic') {
         return false;
@@ -257,7 +257,7 @@ function videodiagnostic_pluginfile(
  */
 function videodiagnostic_extend_settings_navigation(
     settings_navigation $settingsnav,
-    navigation_node     $videodiagnosticnode
+    navigation_node $videodiagnosticnode
 ): void {
     global $PAGE;
 
