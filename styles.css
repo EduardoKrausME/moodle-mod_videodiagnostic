@@ -38,3 +38,11 @@
     bottom: 0;
     background: var(--bs-success, #198754);
 }
+/* Size provider iframes even after the original placeholder class is replaced. */
+.videodiagnostic-player iframe {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border: 0;
+}
