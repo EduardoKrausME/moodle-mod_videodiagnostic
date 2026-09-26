@@ -92,31 +92,46 @@ class progress_manager {
         global $DB;
 
         $progress = $this->get_or_create($activity->id, $userid);
-        $duration = max(0.0, min(86400.0, $duration));
-        $position = max(0.0, $duration > 0 ? min($duration, $position) : $position);
+        $now = time();
+
+        $reportedduration = max(0.0, min(86400.0, $duration));
+        $storedduration = max(0.0, (float)$progress->duration);
+        $initialduration = $storedduration <= 0 && $reportedduration > 0;
+
+        // The first valid duration becomes authoritative for this progress row.
+        // Later client-reported values cannot shrink or replace it.
+        if ($initialduration) {
+            $storedduration = $reportedduration;
+        }
+
+        $position = max(0.0, $storedduration > 0 ? min($storedduration, $position) : $position);
         $segmentstart = max(0.0, $segmentstart);
         $segmentend = max(0.0, $segmentend);
 
         $segments = $this->decode_segments((string)$progress->watchedsegments);
         $acceptedlength = 0.0;
-        if ($duration > 0 && $segmentend > $segmentstart) {
-            $segmentend = min($duration, $segmentend);
+        if (!$initialduration && $storedduration > 0 && $segmentend > $segmentstart) {
+            $segmentend = min($storedduration, $segmentend);
             $segmentstart = min($segmentstart, $segmentend);
             $length = $segmentend - $segmentstart;
-            // Heartbeats intentionally stay small. A large jump is considered seeking, not watching.
-            if ($length > 0 && $length <= 15.0) {
+
+            // A heartbeat cannot claim more watched time than has actually elapsed on the server.
+            // A small allowance absorbs timer jitter and integer timestamp precision.
+            $elapsed = max(0.0, (float)($now - (int)$progress->timemodified));
+            $maxaccepted = min(15.0, $elapsed + 2.0);
+            if ($length > 0 && $length <= $maxaccepted) {
                 $segments[] = [$segmentstart, $segmentend];
                 $acceptedlength = $length;
             }
         }
 
-        $segments = $this->merge_segments($segments, $duration);
+        $segments = $this->merge_segments($segments, $storedduration);
         $unique = 0.0;
         foreach ($segments as $segment) {
             $unique += max(0.0, $segment[1] - $segment[0]);
         }
 
-        $progress->duration = max((float)$progress->duration, $duration);
+        $progress->duration = $storedduration;
         $progress->lastposition = $position;
         $progress->uniquewatched = round($unique, 3);
         $progress->totalwatchtime = round((float)$progress->totalwatchtime + $acceptedlength, 3);
@@ -124,7 +139,7 @@ class progress_manager {
             ? round(min(100, ($progress->uniquewatched / $progress->duration) * 100), 2)
             : 0;
         $progress->watchedsegments = json_encode($segments, JSON_UNESCAPED_SLASHES);
-        $progress->timemodified = time();
+        $progress->timemodified = $now;
         $DB->update_record('videodiagnostic_progress', $progress);
 
         $completion = new completion_info(get_course($activity->course));
