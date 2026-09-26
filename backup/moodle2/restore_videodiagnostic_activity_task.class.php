@@ -45,7 +45,18 @@ class restore_videodiagnostic_activity_task extends restore_activity_task {
      * @return array
      */
     public static function define_decode_rules(): array {
-        return [];
+        return [
+            new restore_decode_rule(
+                'VIDEODIAGNOSTICINDEX',
+                '/mod/videodiagnostic/index.php?id=$1',
+                'course'
+            ),
+            new restore_decode_rule(
+                'VIDEODIAGNOSTICVIEWBYID',
+                '/mod/videodiagnostic/view.php?id=$1',
+                'course_module'
+            ),
+        ];
     }
 
     /**
@@ -54,6 +65,12 @@ class restore_videodiagnostic_activity_task extends restore_activity_task {
      * @return array
      */
     public static function define_decode_contents(): array {
-        return [];
+        return [
+            new restore_decode_content(
+                'videodiagnostic',
+                ['intro', 'videourl', 'explanationvideourl', 'solution', 'teachercomments', 'materials'],
+                'videodiagnostic'
+            ),
+        ];
     }
 }

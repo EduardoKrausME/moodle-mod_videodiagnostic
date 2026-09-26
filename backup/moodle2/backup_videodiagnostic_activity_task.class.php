@@ -46,6 +46,18 @@ class backup_videodiagnostic_activity_task extends backup_activity_task {
      * @return string
      */
     public static function encode_content_links($content): string {
+        global $CFG;
+
+        $base = preg_quote($CFG->wwwroot . '/mod/videodiagnostic', '#');
+
+        $pattern = '#(' . $base . '/index\\.php\\?id=)([0-9]+)#';
+        $replacement = chr(36) . '@VIDEODIAGNOSTICINDEX*' . '$2' . '@' . chr(36);
+        $content = preg_replace($pattern, $replacement, $content);
+
+        $pattern = '#(' . $base . '/view\\.php\\?id=)([0-9]+)#';
+        $replacement = chr(36) . '@VIDEODIAGNOSTICVIEWBYID*' . '$2' . '@' . chr(36);
+        $content = preg_replace($pattern, $replacement, $content);
+
         return $content;
     }
 }
