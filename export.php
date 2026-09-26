@@ -27,6 +27,8 @@ require_once(__DIR__ . '/lib.php');
 
 use mod_videodiagnostic\diagnostic_manager;
 
+$dataformat = optional_param('dataformat', 'csv', PARAM_ALPHANUMEXT);
+
 $id = required_param('id', PARAM_INT);
 $cm = get_coursemodule_from_id('videodiagnostic', $id, 0, false, MUST_EXIST);
 $course = get_course($cm->course);
@@ -36,38 +38,50 @@ require_login($course, true, $cm);
 require_capability('mod/videodiagnostic:exportreport', $context);
 
 $manager = new diagnostic_manager();
-$users = get_enrolled_users($context, '', 0,
-    "u.id,u.firstname,u.lastname,u.email,u.picture,u.imagealt,u.firstnamephonetic,u.lastnamephonetic,u.middlename,u.alternatename",
-    "u.lastname,u.firstname");
-$filename = clean_filename('videodiagnostic-' . $activity->name . '-' . userdate(time(), '%Y%m%d') . '.csv');
-header('Content-Type: text/csv; charset=UTF-8');
-header('Content-Disposition: attachment; filename="' . $filename . '"');
-header('Pragma: no-cache');
-echo "\xEF\xBB\xBF";
-$out = fopen('php://output', 'wb');
-fputcsv($out, [
-    get_string('student', 'mod_videodiagnostic'),
-    get_string('email'),
-    get_string('watchprogress', 'mod_videodiagnostic'),
-    get_string('initialresult', 'mod_videodiagnostic'),
-    get_string('finalresult', 'mod_videodiagnostic'),
-    get_string('changedanswers', 'mod_videodiagnostic'),
-]);
+$identityfields = \core_user\fields::get_identity_fields($context, false);
+$userfields = array_unique(array_merge(
+    ['id', 'firstname', 'lastname', 'firstnamephonetic', 'lastnamephonetic', 'middlename', 'alternatename'],
+    $identityfields
+));
+$userfieldsql = implode(',', array_map(static fn(string $field): string => 'u.' . $field, $userfields));
+$users = get_enrolled_users($context, '', 0, $userfieldsql, 'u.lastname,u.firstname');
+
+$columns = ['student' => get_string('student', 'mod_videodiagnostic')];
+foreach ($identityfields as $field) {
+    $columns[$field] = \core_user\fields::get_display_name($field);
+}
+$columns += [
+    'watchprogress' => get_string('watchprogress', 'mod_videodiagnostic'),
+    'initialresult' => get_string('initialresult', 'mod_videodiagnostic'),
+    'finalresult' => get_string('finalresult', 'mod_videodiagnostic'),
+    'changedanswers' => get_string('changedanswers', 'mod_videodiagnostic'),
+];
+
+$rows = [];
 foreach ($users as $user) {
     if (has_capability('mod/videodiagnostic:managequestions', $context, $user->id)) {
         continue;
     }
-    $progress = $DB->get_record('videodiagnostic_progress', ['videodiagnosticid' => $activity->id, 'userid' => $user->id]);
+    $progress = $DB->get_record('videodiagnostic_progress', [
+        'videodiagnosticid' => $activity->id,
+        'userid' => $user->id,
+    ]);
     $initial = $manager->get_attempt($activity->id, $user->id, diagnostic_manager::STAGE_INITIAL);
     $final = $manager->get_attempt($activity->id, $user->id, diagnostic_manager::STAGE_FINAL);
-    fputcsv($out, [
-        fullname($user),
-        $user->email,
-        $progress ? format_float($progress->percent, 1) . '%' : '0%',
-        $initial && $initial->scoreavailable ? format_float($initial->score, 1) . '%' : '',
-        $final && $final->scoreavailable ? format_float($final->score, 1) . '%' : '',
-        $final && $final->submitted ? (int)$final->changedcount : '',
-    ]);
+
+    $row = ['student' => fullname($user)];
+    foreach ($identityfields as $field) {
+        $row[$field] = $user->{$field} ?? '';
+    }
+    $row += [
+        'watchprogress' => $progress ? format_float($progress->percent, 1) . '%' : '0%',
+        'initialresult' => $initial && $initial->scoreavailable ? format_float($initial->score, 1) . '%' : '',
+        'finalresult' => $final && $final->scoreavailable ? format_float($final->score, 1) . '%' : '',
+        'changedanswers' => $final && $final->submitted ? (int)$final->changedcount : '',
+    ];
+    $rows[] = $row;
 }
-fclose($out);
+
+$filename = clean_filename('videodiagnostic-' . $activity->name . '-' . userdate(time(), '%Y%m%d'));
+\core\dataformat::download_data($filename, $dataformat, $columns, new ArrayIterator($rows));
 exit;

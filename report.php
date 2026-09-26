@@ -48,10 +48,11 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('report', 'mod_videodiagnostic') . ': ' . format_string($activity->name));
 if (has_capability('mod/videodiagnostic:exportreport', $context)) {
     echo html_writer::div(
-        html_writer::link(
-            new moodle_url('/mod/videodiagnostic/export.php', ['id' => $id]),
-            get_string('exportcsv', 'mod_videodiagnostic'),
-            ['class' => 'btn btn-secondary']
+        $OUTPUT->download_dataformat_selector(
+            get_string('downloadas', 'table'),
+            new moodle_url('/mod/videodiagnostic/export.php'),
+            'dataformat',
+            ['id' => $id]
         ),
         'mb-3'
     );
