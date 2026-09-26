@@ -225,6 +225,17 @@ function videodiagnostic_pluginfile(
         return false;
     }
 
+    $protectedareas = ['explanationvideo', 'solution', 'teachercomments', 'materials'];
+    if (in_array($filearea, $protectedareas, true)
+            && !has_capability('mod/videodiagnostic:managequestions', $context)) {
+        global $DB, $USER;
+        $activity = $DB->get_record('videodiagnostic', ['id' => $cm->instance], '*', MUST_EXIST);
+        $manager = new \mod_videodiagnostic\diagnostic_manager();
+        if (!$manager->study_available($activity, $USER->id)) {
+            return false;
+        }
+    }
+
     $itemid = 0;
     if (in_array($filearea, ['solution', 'teachercomments', 'materials'], true)) {
         if (!$args) {
