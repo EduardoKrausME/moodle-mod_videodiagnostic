@@ -115,13 +115,18 @@ class mod_videodiagnostic_mod_form extends moodleform_mod {
      */
     public function add_completion_rules(): array {
         $mform = $this->_form;
-        $mform->addElement('checkbox', 'completiondiagnostic', '', get_string('completiondiagnostic', 'mod_videodiagnostic'));
-        $mform->setDefault('completiondiagnostic', 1);
-        $mform->addElement('text', 'completionpercent', get_string('completionpercent', 'mod_videodiagnostic'), ['size' => 6]);
-        $mform->setType('completionpercent', PARAM_FLOAT);
-        $mform->setDefault('completionpercent', 0);
-        $mform->addHelpButton('completionpercent', 'completionpercent', 'mod_videodiagnostic');
-        return ['completiondiagnostic', 'completionpercent'];
+        $suffix = $this->get_suffix();
+        $diagnosticel = 'completiondiagnostic' . $suffix;
+        $percentel = 'completionpercent' . $suffix;
+
+        $mform->addElement('checkbox', $diagnosticel, '', get_string('completiondiagnostic', 'mod_videodiagnostic'));
+        $mform->setDefault($diagnosticel, 1);
+        $mform->addElement('text', $percentel, get_string('completionpercent', 'mod_videodiagnostic'), ['size' => 6]);
+        $mform->setType($percentel, PARAM_FLOAT);
+        $mform->setDefault($percentel, 0);
+        $mform->addHelpButton($percentel, 'completionpercent', 'mod_videodiagnostic');
+
+        return [$diagnosticel, $percentel];
     }
 
     /**
@@ -131,7 +136,24 @@ class mod_videodiagnostic_mod_form extends moodleform_mod {
      * @return bool
      */
     public function completion_rule_enabled($data): bool {
-        return !empty($data['completiondiagnostic']) || ((float)($data['completionpercent'] ?? 0) > 0);
+        $suffix = $this->get_suffix();
+        return !empty($data['completiondiagnostic' . $suffix])
+            || ((float)($data['completionpercent' . $suffix] ?? 0) > 0);
+    }
+
+    /**
+     * Normalises custom completion fields after submission.
+     *
+     * @param stdClass $data Submitted form data.
+     * @return void
+     */
+    public function data_postprocessing($data): void {
+        parent::data_postprocessing($data);
+        $suffix = $this->get_suffix();
+        $diagnosticel = 'completiondiagnostic' . $suffix;
+        if (!isset($data->{$diagnosticel})) {
+            $data->{$diagnosticel} = 0;
+        }
     }
 
     /**
