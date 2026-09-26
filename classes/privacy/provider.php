@@ -20,10 +20,13 @@ use context;
 use context_module;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\writer;
 use core_privacy\local\request\core_user_data_provider;
+use core_privacy\local\request\core_userlist_provider;
+use core_privacy\local\request\userlist;
 use core_privacy\local\metadata\provider as metadata_provider;
 
 /**
@@ -33,7 +36,7 @@ use core_privacy\local\metadata\provider as metadata_provider;
  * @copyright 2026 Eduardo Kraus
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements metadata_provider, core_user_data_provider {
+class provider implements metadata_provider, core_user_data_provider, core_userlist_provider {
     /**
      * Returns metadata declarations.
      *
@@ -84,6 +87,36 @@ class provider implements metadata_provider, core_user_data_provider {
             'progressuserid' => $userid,
         ]);
         return $contextlist;
+    }
+
+    /**
+     * Returns users with data in the specified module context.
+     *
+     * @param userlist $userlist User list for the context.
+     * @return void
+     */
+    public static function get_users_in_context(userlist $userlist): void {
+        $context = $userlist->get_context();
+        if (!$context instanceof context_module) {
+            return;
+        }
+
+        $cm = get_coursemodule_from_id('videodiagnostic', $context->instanceid, 0, false, IGNORE_MISSING);
+        if (!$cm) {
+            return;
+        }
+
+        $params = ['videodiagnosticid' => $cm->instance];
+        $userlist->add_from_sql(
+            'userid',
+            'SELECT userid FROM {videodiagnostic_attempts} WHERE videodiagnosticid = :videodiagnosticid',
+            $params
+        );
+        $userlist->add_from_sql(
+            'userid',
+            'SELECT userid FROM {videodiagnostic_progress} WHERE videodiagnosticid = :videodiagnosticid',
+            $params
+        );
     }
 
     /**
@@ -173,6 +206,55 @@ class provider implements metadata_provider, core_user_data_provider {
         }
         $DB->delete_records('videodiagnostic_attempts', ['videodiagnosticid' => $cm->instance]);
         $DB->delete_records('videodiagnostic_progress', ['videodiagnosticid' => $cm->instance]);
+    }
+
+    /**
+     * Deletes data for an approved list of users in one module context.
+     *
+     * @param approved_userlist $userlist Approved users and context.
+     * @return void
+     */
+    public static function delete_data_for_users(approved_userlist $userlist): void {
+        global $DB;
+
+        $context = $userlist->get_context();
+        if (!$context instanceof context_module) {
+            return;
+        }
+
+        $cm = get_coursemodule_from_id('videodiagnostic', $context->instanceid, 0, false, IGNORE_MISSING);
+        if (!$cm) {
+            return;
+        }
+
+        $userids = $userlist->get_userids();
+        if (!$userids) {
+            return;
+        }
+
+        [$usersql, $userparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'privacyuser');
+        $params = array_merge(['videodiagnosticid' => $cm->instance], $userparams);
+        $attemptids = $DB->get_fieldset_select(
+            'videodiagnostic_attempts',
+            'id',
+            "videodiagnosticid = :videodiagnosticid AND userid {$usersql}",
+            $params
+        );
+        if ($attemptids) {
+            [$attemptsql, $attemptparams] = $DB->get_in_or_equal($attemptids, SQL_PARAMS_NAMED, 'privacyattempt');
+            $DB->delete_records_select('videodiagnostic_responses', "attemptid {$attemptsql}", $attemptparams);
+        }
+
+        $DB->delete_records_select(
+            'videodiagnostic_attempts',
+            "videodiagnosticid = :videodiagnosticid AND userid {$usersql}",
+            $params
+        );
+        $DB->delete_records_select(
+            'videodiagnostic_progress',
+            "videodiagnosticid = :videodiagnosticid AND userid {$usersql}",
+            $params
+        );
     }
 
     /**
