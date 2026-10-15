@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2026101500;
-$plugin->release = '1.0.6';
+$plugin->version = 2026101501;
+$plugin->release = '1.0.7';
 $plugin->component = 'mod_videodiagnostic';
 $plugin->requires = 2024042200;
 $plugin->maturity = MATURITY_STABLE;
