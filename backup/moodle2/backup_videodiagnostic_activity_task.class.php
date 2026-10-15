@@ -21,6 +21,8 @@
  * @copyright 2026 Eduardo Kraus
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+require_once(__DIR__ . '/backup_videodiagnostic_stepslib.php');
+
 class backup_videodiagnostic_activity_task extends backup_activity_task {
     /**
      * Defines settings.
