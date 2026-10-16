@@ -52,39 +52,23 @@ if ($form->is_cancelled()) {
     redirect(new moodle_url('/mod/videodiagnostic/manage.php', ['id' => $id]));
 }
 if ($data = $form->get_data()) {
-    $now = time();
     $editor = $data->questiontext_editor;
-    $options = preg_split('/\R/u', trim((string)$data->options)) ?: [];
-    $options = array_values(array_filter(array_map('trim', $options), static fn(string $v): bool => $v !== ''));
-    $record = (object)[
-        'videodiagnosticid' => $activity->id,
-        'questiontext' => $editor['text'] ?? '',
-        'questionformat' => $editor['format'] ?? FORMAT_HTML,
-        'qtype' => $data->qtype,
-        'optionsjson' => json_encode($options, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-        'correctanswer' => $data->correctanswer ?? '',
-        'expectedstart' => (float)($data->expectedstart ?? 0),
-        'expectedend' => (float)($data->expectedend ?? 0),
-        'tolerance' => max(0, (float)($data->tolerance ?? 0)),
-        'required' => empty($data->required) ? 0 : 1,
-        'weight' => max(0.01, (float)($data->weight ?? 1)),
-        'timemodified' => $now,
-    ];
-    if ($qid) {
-        $record->id = $qid;
-        $DB->update_record('videodiagnostic_questions', $record);
-        $message = get_string('questionupdated', 'mod_videodiagnostic');
-    } else {
-        $maxsort = (int)$DB->get_field_sql(
-            'SELECT COALESCE(MAX(sortorder), 0) FROM {videodiagnostic_questions} WHERE videodiagnosticid = ?',
-            [$activity->id]
-        );
-        $record->sortorder = $maxsort + 10;
-        $record->timecreated = $now;
-        $DB->insert_record('videodiagnostic_questions', $record);
-        $message = get_string('questionadded', 'mod_videodiagnostic');
-    }
-    redirect(new moodle_url('/mod/videodiagnostic/manage.php', ['id' => $id]), $message);
+    (new \mod_videodiagnostic\question_writer())->save($activity, $qid, [
+        "questiontext" => $editor["text"] ?? "",
+        "questionformat" => $editor["format"] ?? FORMAT_HTML,
+        "qtype" => $data->qtype,
+        "options" => (string)($data->options ?? ""),
+        "correctanswer" => (string)($data->correctanswer ?? ""),
+        "expectedstart" => (float)($data->expectedstart ?? 0),
+        "expectedend" => (float)($data->expectedend ?? 0),
+        "tolerance" => (float)($data->tolerance ?? 0),
+        "required" => !empty($data->required),
+        "weight" => (float)($data->weight ?? 1),
+    ]);
+    redirect(
+        new moodle_url("/mod/videodiagnostic/manage.php", ["id" => $id]),
+        get_string($qid ? "questionupdated" : "questionadded", "mod_videodiagnostic")
+    );
 }
 
 $defaults = ['id' => $id, 'qid' => $qid];
