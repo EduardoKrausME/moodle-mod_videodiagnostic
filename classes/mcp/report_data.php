@@ -139,6 +139,8 @@ final class report_data {
     }
 
     /**
+     * Load a saved learner response for a diagnostic question.
+     *
      * @param stdClass|null $response Persisted submitted response.
      * @return array|null
      */

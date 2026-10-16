@@ -108,6 +108,8 @@ final class access {
     }
 
     /**
+     * Resolve the module context from the requested course-module identifier.
+     *
      * @param int $cmid Course module.
      * @return context_module
      */

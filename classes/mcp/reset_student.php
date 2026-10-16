@@ -32,6 +32,8 @@ use mod_videodiagnostic\diagnostic_manager;
  */
 final class reset_student extends write_base {
     /**
+     * Return the unique MCP tool identifier.
+     *
      * @return string
      */
     public function get_name(): string {
@@ -39,6 +41,8 @@ final class reset_student extends write_base {
     }
 
     /**
+     * Return the translated title of this tool.
+     *
      * @return string
      */
     public function get_title(): string {
@@ -46,6 +50,8 @@ final class reset_student extends write_base {
     }
 
     /**
+     * Return the translated description of this tool.
+     *
      * @return string
      */
     public function get_description(): string {
@@ -53,6 +59,8 @@ final class reset_student extends write_base {
     }
 
     /**
+     * Declare the capability required to access this tool.
+     *
      * @return string
      */
     public function get_required_capability(): string {
@@ -60,6 +68,8 @@ final class reset_student extends write_base {
     }
 
     /**
+     * Mark a write that can modify or delete existing data.
+     *
      * @return bool
      */
     public function is_destructive(): bool {
@@ -67,6 +77,8 @@ final class reset_student extends write_base {
     }
 
     /**
+     * Describe the allowed MCP input parameters.
+     *
      * @return array
      */
     public function get_input_schema(): array {
@@ -79,6 +91,8 @@ final class reset_student extends write_base {
     }
 
     /**
+     * Validate and preview the requested changes without saving.
+     *
      * @param array $arguments Arguments.
      * @param authenticated_identity $identity User.
      * @return array
@@ -103,6 +117,8 @@ final class reset_student extends write_base {
     }
 
     /**
+     * Execute the confirmed MCP operation.
+     *
      * @param array $arguments Arguments.
      * @param authenticated_identity $identity User.
      * @return array

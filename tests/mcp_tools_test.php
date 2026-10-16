@@ -48,6 +48,8 @@ use mod_videodiagnostic\mcp\save_question;
  */
 final class mcp_tools_test extends advanced_testcase {
     /**
+     * Create a course and a diagnostic activity for isolated test cases.
+     *
      * @return array Course, activity and course module.
      */
     private function fixture(): array {
@@ -67,6 +69,8 @@ final class mcp_tools_test extends advanced_testcase {
     }
 
     /**
+     * Skip MCP integration checks when the optional connector is unavailable.
+     *
      * @return void
      */
     private function require_mcp(): void {
@@ -146,14 +150,14 @@ final class mcp_tools_test extends advanced_testcase {
      * @return void
      */
     public function test_write_previews_are_side_effect_free(): void {
-        global $DB;
+        global $DB, $USER;
         $this->resetAfterTest();
         $this->require_mcp();
         [$course, $activity, $cm] = $this->fixture();
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user((int)$user->id, (int)$course->id);
         $identity = new \local_mcp\security\authenticated_identity(
-            (int)$this->getUser()->id, "oauth", ["read", "write"]
+            (int)$USER->id, "oauth", ["read", "write"]
         );
         $before = $DB->count_records("videodiagnostic_questions");
         $questions = (new list_questions())->execute(["cmid" => $cm->id], $identity);
@@ -198,7 +202,7 @@ final class mcp_tools_test extends advanced_testcase {
      * @return void
      */
     public function test_reset_uses_existing_manager(): void {
-        global $DB;
+        global $DB, $USER;
         $this->resetAfterTest();
         $this->require_mcp();
         [$course, $activity, $cm] = $this->fixture();
@@ -210,7 +214,7 @@ final class mcp_tools_test extends advanced_testcase {
             "videodiagnosticid" => $activity->id, "userid" => $user->id,
         ]));
         $identity = new \local_mcp\security\authenticated_identity(
-            (int)$this->getUser()->id, "oauth", ["read", "write"]
+            (int)$USER->id, "oauth", ["read", "write"]
         );
         $hash = report_data::state_hash($activity, (int)$user->id);
         $result = (new reset_student())->execute([

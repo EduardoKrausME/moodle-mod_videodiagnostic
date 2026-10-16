@@ -32,6 +32,8 @@ use local_mcp\write\tool\base_tool;
  */
 abstract class write_base extends base_tool {
     /**
+     * Resolve the activity context for access checks.
+     *
      * @param array $arguments Input.
      * @return context
      */

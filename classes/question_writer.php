@@ -140,6 +140,8 @@ final class question_writer {
     }
 
     /**
+     * Reject updates based on a stale question bank hash.
+     *
      * @param int $activityid Activity.
      * @param string $expected Client state hash.
      * @return void

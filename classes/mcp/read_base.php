@@ -32,6 +32,8 @@ use local_mcp\read\tool\base_tool;
  */
 abstract class read_base extends base_tool {
     /**
+     * Resolve the activity context for access checks.
+     *
      * @param array $arguments Input.
      * @return context
      */

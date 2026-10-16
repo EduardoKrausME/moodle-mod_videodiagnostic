@@ -32,6 +32,8 @@ use mod_videodiagnostic\diagnostic_manager;
  */
 final class list_questions extends read_base {
     /**
+     * Return the MCP tool identifier.
+     *
      * @return string
      */
     public function get_name(): string {
@@ -39,6 +41,8 @@ final class list_questions extends read_base {
     }
 
     /**
+     * Return the translated title of the MCP tool.
+     *
      * @return string
      */
     public function get_title(): string {
@@ -46,6 +50,8 @@ final class list_questions extends read_base {
     }
 
     /**
+     * Return the translated description of the MCP tool.
+     *
      * @return string
      */
     public function get_description(): string {
@@ -53,6 +59,8 @@ final class list_questions extends read_base {
     }
 
     /**
+     * Declare the Moodle capability required by the MCP tool.
+     *
      * @return string
      */
     public function get_required_capability(): string {
@@ -60,6 +68,8 @@ final class list_questions extends read_base {
     }
 
     /**
+     * Declare the supported MCP input arguments.
+     *
      * @return array
      */
     public function get_input_schema(): array {
@@ -71,6 +81,8 @@ final class list_questions extends read_base {
     }
 
     /**
+     * Perform the authorized MCP operation.
+     *
      * @param array $arguments Input.
      * @param authenticated_identity $identity Connected user.
      * @return array
