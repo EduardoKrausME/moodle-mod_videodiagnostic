@@ -38,7 +38,7 @@ The plugin does not create a Moodle gradebook item. Its score is a diagnostic in
 
 ## Optional MCP integration for ChatGPT
 
-When [local_mcp](https://github.com/EduardoKrausME/moodle-local_mcp) is installed,
+When [local_mcp](https://eduardokrausme.github.io/moodle-local_mcp/) is installed,
 the optional `mod_videodiagnostic\mcp\provider` at `classes/mcp/provider.php`
 registers the following tools automatically. No extra web server, database
 migration or change to `version.php` is required.
