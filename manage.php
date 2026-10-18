@@ -36,6 +36,8 @@ require_login($course, true, $cm);
 require_capability('mod/videodiagnostic:managequestions', $context);
 
 $PAGE->set_url('/mod/videodiagnostic/manage.php', ['id' => $id]);
+
+\mod_videodiagnostic\mcp_banner::dismiss_if_requested($PAGE->url);
 $PAGE->set_title(format_string($activity->name));
 $PAGE->set_heading($course->fullname);
 
@@ -84,6 +86,10 @@ if ($action && $qid) {
 $questions = $DB->get_records('videodiagnostic_questions', ['videodiagnosticid' => $activity->id], 'sortorder ASC, id ASC');
 
 echo $OUTPUT->header();
+if (\mod_videodiagnostic\mcp_banner::should_show()) {
+    echo \mod_videodiagnostic\mcp_banner::render($OUTPUT, $PAGE->url);
+}
+
 echo $OUTPUT->heading(get_string('managequestions', 'mod_videodiagnostic'));
 echo $OUTPUT->single_button(new moodle_url('/mod/videodiagnostic/question.php',
     ['id' => $id]), get_string('addquestion', 'mod_videodiagnostic'), 'get');
