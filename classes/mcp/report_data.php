@@ -149,8 +149,8 @@ final class report_data {
             return null;
         }
         return [
-            "text" => \core_text::substr((string)$response->answertext, 0, 4000),
-            "text_truncated" => \core_text::strlen((string)$response->answertext) > 4000,
+            "text" => substr((string)$response->answertext, 0, 4000),
+            "text_truncated" => strlen((string)$response->answertext) > 4000,
             "start_seconds" => (float)$response->starttime,
             "end_seconds" => (float)$response->endtime,
             "score_percent" => $response->scoreavailable ? (float)$response->score : null,

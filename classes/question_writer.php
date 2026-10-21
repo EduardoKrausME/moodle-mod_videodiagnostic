@@ -44,7 +44,7 @@ final class question_writer {
         $type = (string)($fields["qtype"] ?? "text");
         $text = (string)($fields["questiontext"] ?? "");
         if (!in_array($type, self::TYPES, true) ||
-                trim(strip_tags($text)) === "" || \core_text::strlen($text) > 20000) {
+                trim(strip_tags($text)) === "" || strlen($text) > 20000) {
             throw new moodle_exception("mcpinvalidquestion", "mod_videodiagnostic");
         }
         $options = $fields["options"] ?? [];
@@ -61,7 +61,7 @@ final class question_writer {
             throw new moodle_exception("mcpinvalidquestion", "mod_videodiagnostic");
         }
         $expected = (string)($fields["correctanswer"] ?? "");
-        if (\core_text::strlen($expected) > 10000) {
+        if (strlen($expected) > 10000) {
             throw new moodle_exception("mcpinvalidquestion", "mod_videodiagnostic");
         }
         $start = (float)($fields["expectedstart"] ?? 0);

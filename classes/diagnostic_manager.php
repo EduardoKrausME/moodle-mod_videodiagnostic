@@ -336,7 +336,7 @@ class diagnostic_manager {
      * @return string
      */
     private function normalise_text(string $text): string {
-        $text = trim(\core_text::strtolower(strip_tags($text)));
+        $text = trim(strtolower(strip_tags($text)));
         return preg_replace('/\s+/u', ' ', $text) ?? $text;
     }
 }
