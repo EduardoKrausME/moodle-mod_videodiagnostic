@@ -35,7 +35,6 @@ question has an automatic criterion, the attempt is shown as diagnostic-only rat
 
 The plugin does not create a Moodle gradebook item. Its score is a diagnostic indicator inside the activity report.
 
-
 ## Optional MCP integration for ChatGPT
 
 When [local_mcp](https://eduardokrausme.github.io/moodle-local_mcp/) is installed,
