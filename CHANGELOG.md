@@ -2,6 +2,14 @@
 
 This changelog documents only the two most recent published GitHub releases. Each entry describes changes verified by comparing its tag with the immediately preceding published release. Later changes on `master` are excluded.
 
+## 1.0.9 - 2026-11-01
+
+- Replaced legacy `core_text` usage in diagnostic and MCP classes with native PHP string handling.
+- Reordered English and Brazilian Portuguese language strings and expanded the MCP banner Mustache header.
+- Normalized PHP file headers, rebuilt the tracker AMD asset and removed installation directions from the README.
+
+**Full comparison:** [1.0.8...1.0.9](https://github.com/EduardoKrausME/moodle-mod_videodiagnostic/compare/1.0.8...1.0.9)
+
 ## 1.0.8 - 2026-10-19
 
 ### Added
